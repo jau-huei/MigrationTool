@@ -1,0 +1,188 @@
+﻿<Window x:Class="MigrationTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MigrationTool"
+        mc:Ignorable="d"
+        Title="迁移工具" Height="560" Width="980"
+        Background="#F8FAFC" Cursor="">
+    <Window.Resources>
+        <!-- 墨绿主色，与原蓝色风格差异化 -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#10B981"/>
+        <SolidColorBrush x:Key="HeaderBg" Color="#0F172A"/>
+        <SolidColorBrush x:Key="HeaderFg" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrushColor" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#111827"/>
+
+        <!-- 扁平按钮样式 -->
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 输入/列表样式 -->
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Height" Value="32"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Margin" Value="8,8,0,4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+        </Style>
+
+        <!-- 卡片容器样式 -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部标题区（合并 项目与框架） -->
+        <Grid Background="{StaticResource HeaderBg}" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 标题说明 -->
+            <StackPanel Orientation="Vertical" Margin="16,0" VerticalAlignment="Center">
+                <TextBlock Text="EF Core 迁移助手" Foreground="{StaticResource HeaderFg}" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="支持多目标框架，避免迁移命名重复" Foreground="#A7F3D0" FontSize="12"/>
+            </StackPanel>
+
+            <!-- 选择 .csproj + 框架 -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Button Content="浏览..." Click="OpenCsprojDirectory_Click" Width="80"/>
+                <TextBox x:Name="CsprojPathTextBox" IsReadOnly="True" Width="420"/>
+                <Label Content="目标框架" Foreground="{StaticResource HeaderFg}" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                <ComboBox x:Name="FrameworkComboBox" Width="140" SelectionChanged="FrameworkComboBox_SelectionChanged"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 主体区域：左 DbContext + 右 迁移/结构 -->
+        <Grid Grid.Row="1" Margin="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- DbContext 列表（合并 底部操作区） -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="数据库上下文 (DbContext)"/>
+                    <ListBox x:Name="ContextListBox" Grid.Row="1" SelectionChanged="ContextListBox_SelectionChanged"/>
+
+                    <!-- 原底部操作区合并到此处 -->
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="数据库迁移版本" VerticalAlignment="Center"/>
+                        <TextBox x:Name="MigrationNameTextBox" Grid.Column="1"/>
+                        <Button Grid.Column="2" Content="生成迁移" Click="GenerateMigration_Click" Width="80"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- 已有迁移 + 推断表结构（左右两列） -->
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列：迁移列表 -->
+                    <Label Grid.Column="0" Content="已有迁移（时间 - 名称）"/>
+                    <ListBox x:Name="MigrationsListBox" Grid.Row="1" Grid.Column="0" SelectionChanged="MigrationsListBox_SelectionChanged" DisplayMemberPath="Display"/>
+
+                    <!-- 右列：表结构 -->
+                    <Label Grid.Column="1" Content="推断的表结构（Table / Column / Type / Nullable）"/>
+                    <DataGrid x:Name="SchemaGrid" Grid.Row="1" Grid.Column="1" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Table" Binding="{Binding Table}" Width="*"/>
+                            <DataGridTextColumn Header="Column" Binding="{Binding Column}" Width="*"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding ClrType}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="Nullable" Binding="{Binding IsNullable}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loading 遮罩 -->
+        <Grid x:Name="LoadingOverlay" Background="#88000000" Visibility="Collapsed">
+            <Border Background="#FFFFFFFF" CornerRadius="10" Padding="20" Width="260" Height="120" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="正在加载..." Foreground="{StaticResource TextBrush}" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Height="12" Margin="0,18,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

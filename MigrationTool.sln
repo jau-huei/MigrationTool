@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationTool", "MigrationTool\MigrationTool.csproj", "{FF90D9F4-3370-4D11-9DA8-5A40F6716104}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF90D9F4-3370-4D11-9DA8-5A40F6716104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF90D9F4-3370-4D11-9DA8-5A40F6716104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF90D9F4-3370-4D11-9DA8-5A40F6716104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF90D9F4-3370-4D11-9DA8-5A40F6716104}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB013EEA-F21D-4FE3-ADB0-E33D2E342A70}
+	EndGlobalSection
+EndGlobal
