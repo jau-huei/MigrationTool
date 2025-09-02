@@ -2,7 +2,7 @@
 
 一款面向多目标框架项目的 EF Core 迁移可视化小工具。支持快速列出 DbContext、查看迁移、推断表结构，并生成新的迁移，自动避免迁移命名重复。
 
-<image src="..\MigrationTool\MigrationTool\img" alt="Screenshot" width="600"/>
+![Screenshot](https://github.com/jau-huei/MigrationTool/blob/master/MigrationTool/img.png)
 
 ## 功能特性
 - 选择 .csproj 并自动解析 TargetFramework/TargetFrameworks
